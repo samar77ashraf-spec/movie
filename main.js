@@ -1,58 +1,67 @@
-document.querySelector("h1").style.color = "Blue";
-const API_KEY = 'fc1fef96'; // استخدمي المفتاح الجديد ده أضمن
+// 1. تنسيق بسيط للعنوان
+if (document.querySelector("h1")) {
+    document.querySelector("h1").style.color = "Blue";
+}
+
+// 2. المفتاح والروابط (مؤمنة بـ https)
+const API_KEY = 'fc1fef96'; 
 const movieContainer = document.querySelector(".moviecontainer");
 const searchForm = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
 
 async function fetchmovies(searchTerm) {
-    // التعديل الجوهري: إضافة حرف s لـ https وتغيير المفتاح
+    // التعديل الأهم: الرابط هنا بقى https عشان جيت هاب يقبله
     const searchUrl = `https://www.omdbapi.com/?s=${searchTerm}&apikey=${API_KEY}`;
     
     try {
         const response = await fetch(searchUrl);
         const data = await response.json();
         
-        movieContainer.innerHTML = "";
-        
-        if (data.Search && data.Search.length > 0) {
-            data.Search.forEach(movie => {
-                const movieCard = document.createElement('div');
-                movieCard.classList.add('movie_card');
-                
-                // تأمين رابط البوستر عشان يظهر على جيت هاب
-                const posterUrl = (movie.Poster && movie.Poster !== 'N/A') 
-                    ? movie.Poster.replace('http://', 'https://') 
-                    : 'https://via.placeholder.com/250x350?text=No+Poster';
+        if (movieContainer) {
+            movieContainer.innerHTML = ""; // تنظيف النتائج القديمة
+            
+            if (data.Search && data.Search.length > 0) {
+                data.Search.forEach(movie => {
+                    const movieCard = document.createElement('div');
+                    movieCard.classList.add('movie_card');
+                    
+                    // تأمين روابط الصور عشان تظهر على جيت هاب
+                    const posterUrl = (movie.Poster && movie.Poster !== 'N/A') 
+                        ? movie.Poster.replace('http://', 'https://') 
+                        : 'https://via.placeholder.com/250x350?text=No+Poster';
 
-                movieCard.innerHTML = `
-                    <img src="${posterUrl}" alt="${movie.Title}" onclick="goToDetails('${movie.imdbID}')" style="cursor:pointer; width:100%; border-radius:8px;">
-                    <h2 style="font-size: 1.2em; margin: 10px 0;">${movie.Title}</h2>
-                    <p>${movie.Year} | ${movie.Type}</p>
-                `;
-                movieContainer.appendChild(movieCard);
-            });
-        } else {
-            movieContainer.innerHTML = "<p>لم يتم العثور على أفلام.</p>";
+                    movieCard.innerHTML = `
+                        <img src="${posterUrl}" alt="${movie.Title}" onclick="goToDetails('${movie.imdbID}')" style="cursor:pointer; width:100%; border-radius:8px;">
+                        <h2 style="font-size: 1.1em; margin: 10px 0;">${movie.Title}</h2>
+                        <p>${movie.Year} | ${movie.Type}</p>
+                    `;
+                    movieContainer.appendChild(movieCard);
+                });
+            } else {
+                movieContainer.innerHTML = "<p style='color:white;'>عذراً، لم نجد نتائج للبحث.</p>";
+            }
         }
     } catch (error) {
         console.error("fetch error:", error);
-        movieContainer.innerHTML = "<p>حدث خطأ أثناء تحميل الأفلام. جربي لاحقاً.</p>";
     }
 }
 
 // دالة الانتقال لصفحة التفاصيل
 function goToDetails(id) {
-    // اتأكدي إن اسم الملف عندك details.html فعلاً
+    // اتأكدي إن اسم الملف التاني عندك هو details.html
     window.location.href = `details.html?id=${id}`;
 }
 
-searchForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const searchTerm = searchInput.value.trim();
-    if (searchTerm) {
-        fetchmovies(searchTerm);
-    }
-});
+// تشغيل البحث عند الضغط على زرار "بحث"
+if (searchForm) {
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm) {
+            fetchmovies(searchTerm);
+        }
+    });
+}
 
-// تشغيل البحث الافتراضي عند فتح الصفحة
-fetchmovies('matrix');
+// تشغيل بحث افتراضي عند فتح الموقع لأول مرة
+fetchmovies('Inception');
