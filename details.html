@@ -1,22 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Details</title>
-    <link rel="stylesheet" href="stayl.css">
+const urlParams = new URLSearchParams(window.location.search);
+const movieId = urlParams.get('id');
+
+async function getMovieDetails() {
+    // استخدمي نفس المفتاح اللي استخدمناه في main.js
+    const API_KEY = "fc1fef96"; 
+    const url = "https://www.omdbapi.com/?apikey=" + API_KEY + "&i=" + movieId;
     
-</head>
-<body>
-    <header>
-        <h1>Movie Details</h1>
-        <a href="index.html">Back to Home</a>
-    </header>
-    <main>
-    <div id="movie-details" class="details-container">
-        <p>Loading movie details...</p>
-        </div>
-        </main>
-    <script src="details.js"></script>
-</body>
-</html>
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.Response === "True") {
+            displayMovie(data);
+        } else {
+            document.getElementById("movie-details").innerHTML = "<p>عذراً، لم نتمكن من جلب تفاصيل الفيلم.</p>";
+        }
+    } catch (error) {
+        console.error("خطأ في جلب البيانات:", error);
+        document.getElementById("movie-details").innerHTML = "<p>حدث خطأ، يرجى المحاولة لاحقاً.</p>";
+    }
+}
+
+function displayMovie(movie) {
+    const container = document.getElementById("movie-details");
+    if (container) {
+        const securePoster = (movie.Poster && movie.Poster !== "N/A") 
+            ? movie.Poster.replace("http://", "https://") 
+            : "https://via.placeholder.com/200x300?text=No+Poster";
+
+        container.innerHTML = 
+            '<img src="' + securePoster + '" style="width:200px; border-radius: 8px; margin-bottom: 15px;">' +
+            '<h2 style="color: #fff;">' + movie.Title + '</h2>' +
+            '<p style="line-height: 1.6; color: #ccc;">' + movie.Plot + '</p>';
+    }
+}
+
+// التأكد من وجود الـ id قبل التشغيل
+if (movieId) {
+    getMovieDetails();
+} else {
+    document.getElementById("movie-details").innerHTML = "<p>الرابط غير صالح.</p>";
+}
