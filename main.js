@@ -2,7 +2,7 @@ window.goToDetails = function(id) {
     window.location.href = "details.html?id=" + id;
 };
 
-const API_KEY = "fc1fef96"; 
+const API_KEY = "79958fc0"; 
 const movieContainer = document.querySelector(".moviecontainer");
 const searchForm = document.getElementById("search-form");
 const searchInput = document.getElementById("search-input");
